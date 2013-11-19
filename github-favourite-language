@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+'use strict';
+
+/**
+ * Command line utility guessing what are the favourites languages
+ * of a github username.
+ */
+
+var userName = process.argv[2];
+
+if (!userName) {
+    console.log([
+      'You must specify a github username.',
+      'Example:',
+      '$ github-favourite-language foobar'
+    ].join('\n'));
+    process.exit();
+}
+
+var GetFavouritesLanguages = require(__dirname + '/lib/get_favourites_languages');
+var GithubClient = require(__dirname + '/lib/github_client');
+var githubClient = new GithubClient(userName);
+
+githubClient.getRepos(function(error, repos) {
+  if (error) {
+    console.log(error);
+    process.exit();
+  }
+  var favourites = GetFavouritesLanguages(repos);
+
+  var message = userName;
+
+  if (favourites.length > 1) {
+    message += ' favourites languages are ' + favourites.join(', ');
+  } else {
+    message += ' favourite language is ' + favourites[0];
+  }
+
+  message += '.';
+
+  console.log(message);
+
+});
+
+
